@@ -17,33 +17,40 @@ import org.springframework.security.web.SecurityFilterChain;
 
 public class SecurityConfig {
 
-	@Bean
+    @Bean
 //	Authentication :UserDetailsService :-
-	UserDetailsService detailsService() {
+    UserDetailsService detailsService() {
 //		for admin
-		UserDetails admin = User.withUsername("user").password("admin").roles("ADMIN").build();
+        UserDetails admin = User.withUsername("user").password("admin").roles("ADMIN").build();
 //		for  user
-		UserDetails user = User.withUsername("user").password("user").roles("USER").build();
+        UserDetails user = User.withUsername("user").password("user").roles("USER").build();
 
 //		return : for giving userDetails.
 //		we use InMemoryUserDetailsManager to store user details and credentials.
-		return new InMemoryUserDetailsManager(admin, user);
+        return new InMemoryUserDetailsManager(admin, user);
 
-	}
+    }
 
 //	Authorization :SecurityFilterChain :-
 
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//    @Deprecated(since = "6.1", forRemoval = true)
 
-		return http.csrf().disable().authorizeHttpRequests().requestMatchers("/security/home").permitAll().and()
-				.authorizeHttpRequests().requestMatchers("/security/**").authenticated().and().formLogin().and()
-				.build();
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	}
+        return http.csrf().disable().authorizeHttpRequests().requestMatchers("/security/home").permitAll().and().authorizeHttpRequests().requestMatchers("/security/**").authenticated().and().formLogin().and().build();
+    }
 
-//	for using PasswordEncoder 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    //2024-03-25
+    //	for using PasswordEncoder
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build();
+
+        return new InMemoryUserDetailsManager(userDetails);
+    }
 }
